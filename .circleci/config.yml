@@ -44,7 +44,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            python setup.py nosetests
+            python setup.py test
 
       - store_artifacts:
           path: test-reports
