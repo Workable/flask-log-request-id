@@ -10,6 +10,7 @@ class TraceIDTestCase(unittest.TestCase):
         self.app = flask.Flask(__name__)
 
         self.app.route('/')(lambda: 'hello world')
+        self.app.testing = True
 
     def test_default_trace_id_parser_with_amazon(self):
         TraceID(self.app)
@@ -50,11 +51,11 @@ class TraceIDTestCase(unittest.TestCase):
         })
         TraceID(self.app)
 
-        with self.app.test_request_context('/') as r:
-            # print('executed context', r)
-            pass
+        client = self.app.test_client()
+        rv = client.get('/')
+        self.assertTrue(b'hello world' in rv.data)
 
-        mock_logger.info.assert_called_once_with('None - - "GET /test 200"')
+        mock_logger.info.assert_called_once_with('127.0.0.1 - - "GET / 200"')
 
     @patch('flask_traceid.traceid.logger')
     def test_log_request_disabled(self, mock_logger):
