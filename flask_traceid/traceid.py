@@ -1,6 +1,9 @@
 import uuid
-from flask import request, g
 import logging as _logging
+
+from flask import request, g
+from .parser import auto_parser
+
 
 # Find the stack on which we want to store the database connection.
 # Starting with Flask 0.9, the _app_ctx_stack is the correct one,
@@ -38,47 +41,26 @@ def current_trace_id(raise_outside_context=False):
     return g.get('_trace_id', None)
 
 
-def get_amzn_elb_trace_id():
-    """
-    Get the amazon ELB trace id from request
-    :param TraceID tracer: The trace id instance
-    :return: The found Trace-ID or None if not found
-    :rtype: str | None
-    """
-    amazon_request_id = request.headers.get('X-Amzn-Trace-Id', '')
-    trace_id_params = dict(x.split('=') if '=' in x else (x, None) for x in amazon_request_id.split(';'))
-    if 'Self' in trace_id_params:
-        return trace_id_params['Self']
-    if 'Root' in trace_id_params:
-        return trace_id_params['Root']
-
-    return None
-
-
 class TraceID(object):
 
-    def __init__(self, app=None, trace_id_extractor=None, trace_id_generator=None):
+    def __init__(self, app=None, trace_id_parser=None, trace_id_generator=None):
         """
         Initialize TraceID extension
         :param app: The flask application
-        :param None | () -> str trace_id_extractor: The parser to extract traceid from request headers. Default is
+        :param None | () -> str trace_id_parser: The parser to extract traceid from request headers. Default is
          Amazon ELB parser.
-        :param bool log_requests: A flag that if it is true it will add a log event at the end of request as werkzeug
-        does but with the trace id included
-        :param Callable trace_id_extractor: A callable to use in case of missing trace id.
+        :param ()->str trace_id_extractor: A callable to use in case of missing trace id.
         """
         self.app = app
         self._trace_id = None
 
-        if trace_id_extractor is None:
-            self._trace_id_extractor = get_amzn_elb_trace_id
-        else:
-            self._trace_id_extractor = trace_id_extractor
+        self._trace_id_parser = trace_id_parser
+        if self._trace_id_parser is None:
+            self._trace_id_parser = auto_parser
 
-        if trace_id_generator is None:
+        self._trace_id_generator = trace_id_generator
+        if self._trace_id_generator is None:
             self._trace_id_generator = lambda: str(uuid.uuid4())
-        else:
-            self._trace_id_generator = trace_id_generator
 
         if app is not None:
             self.init_app(app)
@@ -99,7 +81,7 @@ class TraceID(object):
         Intended usage is a handler of Flask.before_request event.
         :return:
         """
-        g._trace_id = self._trace_id_extractor()
+        g._trace_id = self._trace_id_parser()
         if g._trace_id is None:
             g._trace_id = self._trace_id_generator()
 
