@@ -17,7 +17,7 @@ def amazon_elb_trace_id():
     return None
 
 
-def generic_http_header(header_name):
+def generic_http_header_parser_for(header_name):
     """
     A parser factory to extract the request id from an HTTP header
     :return: A parser that can be used to extract the request id from the current request context
@@ -39,7 +39,7 @@ def x_request_id():
     Parser for generic X-Request-ID header
     :rtype: str|None
     """
-    return generic_http_header('X-Request-ID')()
+    return generic_http_header_parser_for('X-Request-ID')()
 
 
 def x_correlation_id():
@@ -47,7 +47,7 @@ def x_correlation_id():
     Parser for generic X-Correlation-ID header
     :rtype: str|None
     """
-    return generic_http_header('X-Correlation-ID')()
+    return generic_http_header_parser_for('X-Correlation-ID')()
 
 
 def auto_parser(parsers=(x_request_id, x_correlation_id, amazon_elb_trace_id)):

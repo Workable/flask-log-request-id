@@ -2,7 +2,7 @@ import unittest
 
 from flask import Flask
 
-from flask_traceid.parser import amazon_elb_trace_id, x_correlation_id, x_request_id, auto_parser
+from flask_log_request_id.parser import amazon_elb_trace_id, x_correlation_id, x_request_id, auto_parser
 
 
 class AmazonELBTraceIdTestCase(unittest.TestCase):

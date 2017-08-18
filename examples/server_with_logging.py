@@ -1,7 +1,7 @@
 import logging
 from random import randint
 from flask import Flask
-from flask_traceid import TraceID, ContextualFilter
+from flask_log_request_id import RequestID, ContextualFilter
 
 logger = logging.getLogger(__name__)
 
@@ -12,13 +12,13 @@ def generic_add(a, b):
     return a + b
 
 app = Flask(__name__)
-app.config['TRACEID_EMIT_REQUEST_LOG'] = True
-TraceID(app)
+app.config['REQUESTID_EMIT_REQUEST_LOG'] = True
+RequestID(app)
 
 # Setup logging
 handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - level=%(levelname)s - trace_id=%(trace_id)s - %(message)s"))
-handler.addFilter(ContextualFilter())  # << Add trace id contextual filter
+handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - level=%(levelname)s - request_id=%(request_id)s - %(message)s"))
+handler.addFilter(ContextualFilter())  # << Add request id contextual filter
 logging.getLogger().addHandler(handler)
 logging.getLogger().setLevel(logging.DEBUG)
 

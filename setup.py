@@ -1,15 +1,15 @@
 from setuptools import setup
 
 setup(
-    name='Flask-TraceID',
+    name='Flask-log-request-id',
     version='0.1.0',
-    url='http://github.com/Workable/flask-traceid',
+    url='http://github.com/Workable/flask-log-request-id',
     license='BSD',
     author='Konstantinos Paliouras, Ioannis Foukarakis',
     author_email='paliouras@workable.com, foukarakis@workable.com',
     description='An extension that detects trace id headers on request '
                 'and propagates on logging module through the life-cycle of request',
-    packages=['flask_traceid'],
+    packages=['flask_log_request_id'],
     zip_safe=False,
     include_package_data=True,
     platforms='any',
