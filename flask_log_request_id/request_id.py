@@ -2,7 +2,9 @@ import uuid
 import logging as _logging
 
 from flask import request, g, current_app
+
 from .parser import auto_parser
+from .ctx_fetcher import MultiContextRequestIdFetcher, ExecutedOutsideContext
 
 # Find the stack on which we want to store the database connection.
 # Starting with Flask 0.9, the _app_ctx_stack is the correct one,
@@ -16,30 +18,22 @@ except ImportError:
 logger = _logging.getLogger(__name__)
 
 
-class ContextualFilter(_logging.Filter):
+def flask_ctx_get_request_id():
     """
-    Log filter to inject the current request id of the request under `log_record.request_id`
-
+    Get request id from flask's G object
+    :return: The id or None if not found.
     """
+    from flask import _app_ctx_stack as stack
 
-    def filter(self, log_record):
-        log_record.request_id = current_request_id()
-        return log_record
+    if stack.top is None:
+        raise ExecutedOutsideContext()
 
-
-def current_request_id(raise_outside_context=False):
-    """
-    Get the current request id for the served request
-    :return: The request id or None if it is executed out of context
-    """
-    top = stack.top
-    if top is None:
-        if raise_outside_context:
-            raise RuntimeError("Requested current request id outside context")
-        return None  # Unknown request id
-    g_object_attr = current_app.config['LOG_REQUEST_ID_G_OBJECT_ATTRIBUTE']
-
+    g_object_attr = stack.top.app.config['LOG_REQUEST_ID_G_OBJECT_ATTRIBUTE']
     return g.get(g_object_attr, None)
+
+
+current_request_id = MultiContextRequestIdFetcher()
+current_request_id.register_fetcher(flask_ctx_get_request_id)
 
 
 class RequestID(object):
