@@ -20,6 +20,7 @@ setup(
         'nose',
         'mock==2.0.0',
         'coverage==4.3.4'
+        'celery~=4.1.0'
     ],
     setup_requires=[
         "flake8"
