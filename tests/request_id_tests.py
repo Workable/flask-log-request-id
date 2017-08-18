@@ -31,12 +31,22 @@ class RequestIDTestCase(unittest.TestCase):
             self.assertEqual('fixedid', current_request_id(None))
 
     @patch('flask_log_request_id.request_id.uuid.uuid4')
-    def test_default_generator(self, mock_uuid4):
+    def test_custom_request_id_generator(self, mock_uuid4):
         mock_uuid4.return_value = 'abc-123'
         RequestID(self.app)
         with self.app.test_request_context():
             self.app.preprocess_request()
             self.assertEqual('abc-123', current_request_id(None))
+
+    def test_disable_request_generator(self):
+
+        self.app.config.update({
+            'LOG_REQUEST_ID_GENERATE_IF_NOT_FOUND': False
+        })
+        RequestID(self.app, request_id_generator=lambda: 'def-456')
+        with self.app.test_request_context():
+            self.app.preprocess_request()
+            self.assertIsNone(current_request_id(None))
 
     def test_custom_generator(self):
         RequestID(self.app, request_id_generator=lambda: 'def-456')
@@ -47,7 +57,7 @@ class RequestIDTestCase(unittest.TestCase):
     @patch('flask_log_request_id.request_id.logger')
     def test_log_request_when_enabled(self, mock_logger):
         self.app.config.update({
-            'REQUESTID_EMIT_REQUEST_LOG': True
+            'LOG_REQUEST_ID_LOG_ALL_REQUESTS': True
         })
         RequestID(self.app)
 
