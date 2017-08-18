@@ -15,8 +15,11 @@ that initiated the call.
 
 ## Usage
 
-Here is an example that catches the current trace id and on request it will print it on the standard output.
+Flask-Log-Request-Id provides the `current_request_id()` function which can be used at any time to get the request
+id of the initiated execution chain.
 
+
+### Example 1: Parse request id and print to stdout
 ```python
 from flask_log_request_id import RequestID, current_request_id
 
@@ -31,12 +34,23 @@ def hello():
 ```
 
 
-Another example is to catch the trace id and enrich existing logging mechanism with the request's trace id::
+### Example 2: Parse request id and send it to to logging
+
+In the following example, we will use the `RequestIDLogFilter` to inject the request id on all log events, and
+a custom formatter to print this information. If all these sounds unfamiliar please take a look at [python's logging 
+system](https://docs.python.org/3/library/logging.html)
+
 
 ```python
+import logging
+import logging.config
+from random import randint
+from flask import Flask
+from flask_log_request_id import RequestID, RequestIDLogFilter
+
 def generic_add(a, b):
     """Simple function to add two numbers that is not aware of the trace id"""
-    logger.debug('Called generic_add({}, {})'.format(a, b))
+    logging.debug('Called generic_add({}, {})'.format(a, b))
     return a + b
 
 app = Flask(__name__)
@@ -45,14 +59,14 @@ RequestID(app)
 # Setup logging
 handler = logging.StreamHandler()
 handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - level=%(levelname)s - trace_id=%(trace_id)s - %(message)s"))
-handler.addFilter(ContextualFilter())  # << Add trace id contextual filter
+handler.addFilter(RequestIDLogFilter())  # << Add trace id contextual filter
 logging.getLogger().addHandler(handler)
 
 
 @app.route('/')
 def index():
     a, b = randint(1, 15), randint(1, 15)
-    logger.info('Adding two random numbers {} {}'.format(a, b))
+    logging.info('Adding two random numbers {} {}'.format(a, b))
     return str(generic_add(a, b))
 ```
 
@@ -63,6 +77,12 @@ The above will output the following log entries:
 2017-07-25 16:15:25,913 - __main__ - level=DEBUG - trace_id=7ff2946c-efe0-4c51-b337-fcdcdfe8397b - Called generic_add(11, 14)
 2017-07-25 16:15:25,913 - werkzeug - level=INFO - trace_id=None - 127.0.0.1 - - [25/Jul/2017 16:15:25] "GET / HTTP/1.1" 200 -
 ```
+
+### Example 3: Forward request_id to celery tasks
+
+Flask-Log-Request-Id comes with an extension to forward the context of current request_id to the execution of celery tasks
+
+
 
 ## Configuration
 
