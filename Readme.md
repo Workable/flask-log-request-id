@@ -1,9 +1,16 @@
 
-# Flask-TraceID
+# Flask-Log-Request-Id
 
-Flask-TraceID can track or provide unique ids for requests. The ids can be injected to the logging
-module in order to tag application log events with the id of the request that where produced. Out of the box
-it comes with an extractor for [Amazon Trace-ID](http://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-request-tracing.html).
+Many load balancers in order to track the life-cycle of request, they generate a unique id in the beginning of the 
+request that should be forwarded to any backend application server that processes this request. This pattern is also
+common in microservices infrastructure where the same correlation id should be used by each micro-service that serves
+the same initial request. Adding this id to the log events of each backend service, provides a great tool for 
+tracing and debugging problems.
+ 
+**Flask-Log-Request-Id** is an extension for [Flask](http://flask.pocoo.org/) that is used to parse the forwarded
+request-id  and propagate this information to the rest of the backend infrastructure. A common usage is to inject 
+the request_id in the logging system so that any log produced by third party libraries has attached the request_id
+that initiated the call.
 
 
 ## Usage
@@ -11,16 +18,16 @@ it comes with an extractor for [Amazon Trace-ID](http://docs.aws.amazon.com/elas
 Here is an example that catches the current trace id and on request it will print it on the standard output.
 
 ```python
-from flask_traceid import TraceID, current_trace_id
+from flask_log_request_id import RequestID, current_request_id
 
 [...]
 
-TraceID(app)
+RequestID(app)
 
 
 @app.route('/')
 def hello():
-print('Current trace id: {}'.format(current_trace_id()))
+    print('Current trace id: {}'.format(current_request_id()))
 ```
 
 
@@ -33,7 +40,7 @@ def generic_add(a, b):
     return a + b
 
 app = Flask(__name__)
-TraceID(app)
+RequestID(app)
 
 # Setup logging
 handler = logging.StreamHandler()
@@ -59,6 +66,8 @@ The above will output the following log entries:
 
 ## Configuration
 
-Flask-TraceID conforms to Flask's configuration guidelines. The following parameters can be configured through Flask's configuration mechanism and will be obeyed by TraceID
+Flask-Log-Request-ID follows Flask's configuration guidelines. The following parameters can be configured through 
+Flask's configuration mechanism and will be obeyed by the extension
 
-* **TRACEID_EMIT_REQUEST_LOG**: If True it will emit an extra log event at the end of the request as `werkzeug` does while trace_id is still accessible. 
+* **LOG_REQUEST_ID_EMIT_REQUEST_LOG**: If True it will emit an extra log event at the end of the request as `werkzeug` 
+does while `request_id` is still accessible. 
