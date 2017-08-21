@@ -1,15 +1,17 @@
 from setuptools import setup
 
 setup(
-    name='Flask-log-request-id',
+    name='Flask-Log-Request-ID',
     version='0.1.0',
     url='http://github.com/Workable/flask-log-request-id',
     license='BSD',
     author='Konstantinos Paliouras, Ioannis Foukarakis',
     author_email='paliouras@workable.com, foukarakis@workable.com',
-    description='An extension that detects trace id headers on request '
+    description='An extension that detects request id headers on request '
                 'and propagates on logging module through the life-cycle of request',
-    packages=['flask_log_request_id'],
+    packages=[
+        'flask_log_request_id',
+        'flask_log_request_id.extras'],
     zip_safe=False,
     include_package_data=True,
     platforms='any',
@@ -19,7 +21,8 @@ setup(
     tests_require=[
         'nose',
         'mock==2.0.0',
-        'coverage==4.3.4'
+        'coverage~=4.3.4',
+        'celery~=4.1.0'
     ],
     setup_requires=[
         "flake8"
