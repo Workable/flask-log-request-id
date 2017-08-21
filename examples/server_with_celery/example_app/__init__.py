@@ -1,15 +1,12 @@
 import logging
 from random import randint
 from flask import Flask
-from flask_log_request_id import RequestID, RequestIDLogFilter, current_request_id
+from flask_log_request_id import RequestID, RequestIDLogFilter
+
+from .celery import celery
+from . import tasks
 
 logger = logging.getLogger(__name__)
-
-
-def generic_add(a, b):
-    """Simple function to add two numbers"""
-    logger.debug('Called generic_add({}, {})'.format(a, b))
-    return a + b
 
 
 def initialize_logging():
@@ -28,13 +25,10 @@ RequestID(app)
 initialize_logging()
 
 
-@app.route('/')
+@ app.route('/')
 def index():
     a, b = randint(1, 15), randint(1, 15)
     logger.info('Adding two random numbers {} {}'.format(a, b))
-    return str(generic_add(a, b))
+    task = tasks.generic_add.delay(a, b)
 
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    return "Task {!s} started".format(task)

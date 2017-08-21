@@ -28,7 +28,7 @@ class RequestIDTestCase(unittest.TestCase):
         RequestID(self.app, request_id_parser=lambda: 'fixedid')
         with self.app.test_request_context():
             self.app.preprocess_request()
-            self.assertEqual('fixedid', current_request_id(None))
+            self.assertEqual('fixedid', current_request_id())
 
     @patch('flask_log_request_id.request_id.uuid.uuid4')
     def test_custom_request_id_generator(self, mock_uuid4):
@@ -36,7 +36,7 @@ class RequestIDTestCase(unittest.TestCase):
         RequestID(self.app)
         with self.app.test_request_context():
             self.app.preprocess_request()
-            self.assertEqual('abc-123', current_request_id(None))
+            self.assertEqual('abc-123', current_request_id())
 
     def test_disable_request_generator(self):
 
@@ -46,13 +46,13 @@ class RequestIDTestCase(unittest.TestCase):
         RequestID(self.app, request_id_generator=lambda: 'def-456')
         with self.app.test_request_context():
             self.app.preprocess_request()
-            self.assertIsNone(current_request_id(None))
+            self.assertIsNone(current_request_id())
 
     def test_custom_generator(self):
         RequestID(self.app, request_id_generator=lambda: 'def-456')
         with self.app.test_request_context():
             self.app.preprocess_request()
-            self.assertEqual('def-456', current_request_id(None))
+            self.assertEqual('def-456', current_request_id())
 
     @patch('flask_log_request_id.request_id.logger')
     def test_log_request_when_enabled(self, mock_logger):
