@@ -6,14 +6,6 @@ from flask import request, g, current_app
 from .parser import auto_parser
 from .ctx_fetcher import MultiContextRequestIdFetcher, ExecutedOutsideContext
 
-# Find the stack on which we want to store the database connection.
-# Starting with Flask 0.9, the _app_ctx_stack is the correct one,
-# before that we need to use the _request_ctx_stack.
-try:
-    from flask import _app_ctx_stack as stack
-except ImportError:
-    from flask import _request_ctx_stack as stack
-
 
 logger = _logging.getLogger(__name__)
 
@@ -23,7 +15,7 @@ def flask_ctx_get_request_id():
     Get request id from flask's G object
     :return: The id or None if not found.
     """
-    from flask import _app_ctx_stack as stack
+    from flask import _app_ctx_stack as stack  # We do not support < Flask 0.9
 
     if stack.top is None:
         raise ExecutedOutsideContext()

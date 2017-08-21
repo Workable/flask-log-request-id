@@ -1,5 +1,4 @@
 from celery import Celery
-from flask_log_request_id.extras.celery import configure_celery
+from flask_log_request_id.extras.celery import RequestIDAwareTask
 
-celery = Celery()
-configure_celery(celery)
+celery = Celery(task_cls=RequestIDAwareTask)

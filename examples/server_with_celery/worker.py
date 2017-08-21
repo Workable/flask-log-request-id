@@ -30,11 +30,10 @@ def initialize_celery_logging():
             'example_app': {
                 'level': 'DEBUG',
                 'handlers': ['console'],
-                'propagate': 'no',
             },
         },
         'root': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'handlers': ['console']
         }
     }

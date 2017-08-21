@@ -1,21 +1,26 @@
 from celery import Task, current_task
+import logging as _logging
 
 from ..request_id import current_request_id
 from ..ctx_fetcher import ExecutedOutsideContext
 
+
 _CELERY_X_HEADER = 'x_request_id'
+logger = _logging.getLogger(__name__)
 
 
 class RequestIDAwareTask(Task):
     """
     Task base class that injects request id to task request object with key 'x_request_id'.
     """
-    abstract = True
 
     def apply_async(self, *args, **kwargs):
-        # Override to inject trace id
+        # Override to inject request id
         kwargs.setdefault('headers', {})
-        kwargs['headers'][_CELERY_X_HEADER] = current_request_id()
+        request_id = current_request_id()
+        logger.debug("Forwarding request_id '{}' to the task consumer.".format(request_id))
+        kwargs['headers'][_CELERY_X_HEADER] = request_id
+
         return super(RequestIDAwareTask, self).apply_async(*args, **kwargs)
 
 
@@ -29,13 +34,5 @@ def ctx_celery_task_get_request_id():
     return current_task.request.get(_CELERY_X_HEADER, None)
 
 
-def configure_celery(celery_app):
-    """
-    Configure celery application to forward current request id to delegated tasks
-    :param celery.App celery_app: The application instance to configure
-    """
-    # Configure celery app
-    celery_app.Task = RequestIDAwareTask
-
-    # Register context fetcher
-    current_request_id.register_fetcher(ctx_celery_task_get_request_id)
+# If you import this module then you are interested for this context
+current_request_id.register_fetcher(ctx_celery_task_get_request_id)
