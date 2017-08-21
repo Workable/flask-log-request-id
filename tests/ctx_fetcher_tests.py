@@ -47,6 +47,24 @@ class CtxFetcherTestCase(unittest.TestCase):
         ctx_fetchers[1].side_effect = None
         self.assertEqual(multi_fetcher(), 'fetcher:0')
 
+    def test_register_same_fetcher(self):
+        multi_fetcher = MultiContextRequestIdFetcher()
+
+        fetcher1 = mock.Mock()
+        multi_fetcher.register_fetcher(fetcher1)
+        self.assertEqual(
+            multi_fetcher.ctx_fetchers,
+            [fetcher1]
+        )
+
+        # Re-register
+        multi_fetcher.register_fetcher(fetcher1)
+        self.assertEqual(
+            multi_fetcher.ctx_fetchers,
+            [fetcher1]
+        )
+
+
 
 if __name__ == '__main__':
     unittest.main()

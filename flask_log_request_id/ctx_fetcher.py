@@ -31,4 +31,5 @@ class MultiContextRequestIdFetcher(object):
         :param Callable ctx_fetcher: A callable that will return the id or raise ExecutedOutsideContext if it was
          executed outside its context
         """
-        self.ctx_fetchers.append(ctx_fetcher)
+        if ctx_fetcher not in self.ctx_fetchers:
+            self.ctx_fetchers.append(ctx_fetcher)
