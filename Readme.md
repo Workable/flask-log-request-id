@@ -73,3 +73,8 @@ The following parameters can be configured through Flask's configuration system:
 | **LOG_REQUEST_ID_GENERATE_IF_NOT_FOUND**| In case the request does not hold any request id, the extension will generate one. Otherwise `current_request_id` will return None. |
 | **LOG_REQUEST_ID_LOG_ALL_REQUESTS** | If True, it will emit a log event at the request containing all the details as `werkzeug` would done along with the `request_id` . |
 | **LOG_REQUEST_ID_G_OBJECT_ATTRIBUTE** | This is the attribute of `Flask.g` object to store the current request id. Should be changed only if there is a problem. Use `current_request_id()` to fetch the current id. |
+
+
+## License
+
+See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
