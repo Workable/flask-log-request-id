@@ -80,9 +80,35 @@ The above will output the following log entries:
 
 ### Example 3: Forward request_id to celery tasks
 
-Flask-Log-Request-Id comes with an extension to forward the context of current request_id to the execution of celery tasks
+Flask-Log-Request-Id comes with extras to forward the context of current request_id to the workers of celery tasks.
+In order to use this feature you need to enable the celery plugin and configure the `Celery` instance. Then you can
+use `current_request_id()` from inside your worker
 
+```python
+from flask_log_request_id.extras.celery import RequestIDAwareTask
+from flask_log_request_id import current_request_id
+from celery.app import Celery
+import logging
 
+celery = Celery(task_cls=RequestIDAwareTask)
+app = Flask()
+
+@celery.task()
+def generic_add(a, b):
+    """Simple function to add two numbers that is not aware of the trace id"""
+    
+    logging.debug('Called generic_add({}, {}) from request_id: {}'.format(a, b, current_request_id()))
+    return a + b
+    
+@app.route('/')
+def index():
+    a, b = randint(1, 15), randint(1, 15)
+    logging.info('Adding two random numbers {} {}'.format(a, b))
+    return str(generic_add.delay(a, b))  # Calling the task here, will forward the request id to the workers
+```
+
+You can follow the same logging strategy for both web application and workers using the `RequestIDLogFilter` as shown in 
+example 1 and 2.
 
 ## Configuration
 
