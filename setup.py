@@ -16,9 +16,10 @@ setup(
     url='http://github.com/Workable/flask-log-request-id',
     license='BSD',
     author='Konstantinos Paliouras, Ioannis Foukarakis',
-    author_email='squarious@gmail.com, foukarakis@workable.com',
-    description='An extension that detects request id headers on request '
-                'and propagates on logging module through the life-cycle of request',
+    author_email='squarious@gmail.com, ioannis.foukarakis@gmail.com',
+    description='Flask extension that can parse and handle multiple types of request-id '
+                'sent by request processors like Amazon ELB, Heroku or any multi-tier '
+                'infrastructure as the one used for microservices.',
     maintainer="Konstantinos Paliouras",
     maintainer_email="squarious@gmail.com",
     packages=[
