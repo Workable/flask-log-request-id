@@ -37,7 +37,7 @@ information. If all these sounds unfamiliar please take a look at `python loggin
     from flask_log_request_id import RequestID, RequestIDLogFilter
 
     def generic_add(a, b):
-        \"""Simple function to add two numbers that is not aware of the trace id\"""
+        \"""Simple function to add two numbers that is not aware of the request id\"""
         logging.debug('Called generic_add({}, {})'.format(a, b))
         return a + b
 
@@ -46,8 +46,8 @@ information. If all these sounds unfamiliar please take a look at `python loggin
 
     # Setup logging
     handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - level=%(levelname)s - trace_id=%(trace_id)s - %(message)s"))
-    handler.addFilter(RequestIDLogFilter())  # << Add trace id contextual filter
+    handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - level=%(levelname)s - request_id=%(request_id)s - %(message)s"))
+    handler.addFilter(RequestIDLogFilter())  # << Add request id contextual filter
     logging.getLogger().addHandler(handler)
 
 

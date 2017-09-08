@@ -27,7 +27,7 @@ RequestID(app)
 
 @app.route('/')
 def hello():
-    print('Current trace id: {}'.format(current_request_id()))
+    print('Current request id: {}'.format(current_request_id()))
 ```
 
 
@@ -46,7 +46,7 @@ from flask import Flask
 from flask_log_request_id import RequestID, RequestIDLogFilter
 
 def generic_add(a, b):
-    """Simple function to add two numbers that is not aware of the trace id"""
+    """Simple function to add two numbers that is not aware of the request id"""
     logging.debug('Called generic_add({}, {})'.format(a, b))
     return a + b
 
@@ -55,8 +55,8 @@ RequestID(app)
 
 # Setup logging
 handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - level=%(levelname)s - trace_id=%(trace_id)s - %(message)s"))
-handler.addFilter(RequestIDLogFilter())  # << Add trace id contextual filter
+handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - level=%(levelname)s - request_id=%(request_id)s - %(message)s"))
+handler.addFilter(RequestIDLogFilter())  # << Add request id contextual filter
 logging.getLogger().addHandler(handler)
 
 
@@ -70,9 +70,9 @@ def index():
 The above will output the following log entries:
 
 ```
-2017-07-25 16:15:25,912 - __main__ - level=INFO - trace_id=7ff2946c-efe0-4c51-b337-fcdcdfe8397b - Adding two random numbers 11 14
-2017-07-25 16:15:25,913 - __main__ - level=DEBUG - trace_id=7ff2946c-efe0-4c51-b337-fcdcdfe8397b - Called generic_add(11, 14)
-2017-07-25 16:15:25,913 - werkzeug - level=INFO - trace_id=None - 127.0.0.1 - - [25/Jul/2017 16:15:25] "GET / HTTP/1.1" 200 -
+2017-07-25 16:15:25,912 - __main__ - level=INFO - request_id=7ff2946c-efe0-4c51-b337-fcdcdfe8397b - Adding two random numbers 11 14
+2017-07-25 16:15:25,913 - __main__ - level=DEBUG - request_id=7ff2946c-efe0-4c51-b337-fcdcdfe8397b - Called generic_add(11, 14)
+2017-07-25 16:15:25,913 - werkzeug - level=INFO - request_id=None - 127.0.0.1 - - [25/Jul/2017 16:15:25] "GET / HTTP/1.1" 200 -
 ```
 
 ### Example 3: Forward request_id to celery tasks
@@ -92,7 +92,7 @@ app = Flask()
 
 @celery.task()
 def generic_add(a, b):
-    """Simple function to add two numbers that is not aware of the trace id"""
+    """Simple function to add two numbers that is not aware of the request id"""
     
     logging.debug('Called generic_add({}, {}) from request_id: {}'.format(a, b, current_request_id()))
     return a + b
