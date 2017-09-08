@@ -60,7 +60,7 @@ information. If all these sounds unfamiliar please take a look at `python loggin
 
 Installation
 ------------
-The easier way to install it is using ``pip`` from PyPI
+The easiest way to install it is using ``pip`` from PyPI
 
 .. code:: bash
 
