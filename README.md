@@ -10,6 +10,14 @@ at microservices. A common usage scenario is to inject the request_id in the log
 even those emitted by third party libraries, have attached the request_id that initiated their call. This can
 greatly improve tracing and debugging of problems.
 
+## Installation
+
+The easiest way to install it is using ``pip`` from PyPI
+
+```bash
+    pip install flask-log-request-id
+```
+    
 ## Usage
 
 Flask-Log-Request-Id provides the `current_request_id()` function which can be used at any time to get the request
