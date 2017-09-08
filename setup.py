@@ -96,7 +96,7 @@ with open('flask_log_request_id/__init__.py', 'rb') as f:
 
 setup(
     name='Flask-Log-Request-ID',
-    version='0.1.0',
+    version=version,
     url='http://github.com/Workable/flask-log-request-id',
     license='MIT',
     author='Konstantinos Paliouras, Ioannis Foukarakis',
