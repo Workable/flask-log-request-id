@@ -14,7 +14,7 @@ setup(
     name='Flask-Log-Request-ID',
     version='0.1.0',
     url='http://github.com/Workable/flask-log-request-id',
-    license='BSD',
+    license='MIT',
     author='Konstantinos Paliouras, Ioannis Foukarakis',
     author_email='squarious@gmail.com, ioannis.foukarakis@gmail.com',
     description='Flask extension that can parse and handle multiple types of request-id '
