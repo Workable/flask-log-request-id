@@ -1,6 +1,8 @@
 
 # Flask-Log-Request-Id
 
+[![CircleCI](https://img.shields.io/circleci/project/github/Workable/flask-log-request-id.svg)](https://circleci.com/gh/Workable/flask-log-request-id)
+
 **Flask-Log-Request-Id** is an extension for [Flask](http://flask.pocoo.org/) that can parse and handle
 request-id sent by request processors like [Amazon ELB](http://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-request-tracing.html),
 [Heroku Request-ID](https://devcenter.heroku.com/articles/http-request-id) or any multi-tier infrastructure as the one used
