@@ -1,17 +1,12 @@
 
 # Flask-Log-Request-Id
 
-Many load balancers generate a unique id in the beginning of the request that should be forwarded to any backend 
-application server in a multi-tier infrastructure. This pattern is also common in microservices infrastructure where 
-the same correlation id should be attached to any forwared message so that the initial request can be efficiently
-tracked. Adding this id to the log events of each backend service, provides a great tool for 
-tracing and debugging problems.
- 
-**Flask-Log-Request-Id** is an extension for [Flask](http://flask.pocoo.org/) that is used to parse the forwarded
-request-id and propagate this information to the rest of the backend infrastructure. A common usage is to inject 
-the request_id in the logging system so that any log produced by third party libraries has attached the request_id
-that initiated the call.
-
+**Flask-Log-Request-Id** is an extension for [Flask](http://flask.pocoo.org/) that can parse and handle
+request-id sent by request processors like [Amazon ELB](http://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-request-tracing.html),
+[Heroku Request-ID](https://devcenter.heroku.com/articles/http-request-id) or any multi-tier infrastructure as the one used
+at microservices. A common usage scenario is to inject the request_id in the logging system so that all log records,
+even those emitted by third party libraries, have attached the request_id that initiated their call. This can
+greatly improve tracing and debugging of problems.
 
 ## Usage
 
