@@ -15,7 +15,7 @@ greatly improve tracing and debugging of problems.
 The easiest way to install it is using ``pip`` from PyPI
 
 ```bash
-    pip install flask-log-request-id
+pip install flask-log-request-id
 ```
     
 ## Usage
