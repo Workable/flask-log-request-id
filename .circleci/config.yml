@@ -55,6 +55,7 @@ jobs:
             . venv/bin/activate
             python setup.py flake8
 
-      - store_artifacts:
-          path: test-reports
-          destination: test-reports
+#      # Build
+#      - store_artifacts:
+#          path: test-reports
+#          destination: test-reports
