@@ -149,10 +149,21 @@ workflows:
             - test-3.6
             - test-3.5
       - deploy_test_pypi:
-          type: approval
+          tags:
+            only:
+                - /^v[\d\.]+$/
+                - /^test-.*/
           requires:
             - build
-      - deploy_pypi:
-          type: approval
+      - request_permission_for_public_pypi:
+          type: approval:
           requires:
             - deploy_test_pypi
+      - deploy_pypi:
+          requires:
+            - request_permission_for_public_pypi
+          tags:
+            only:
+                - /^v[\d\.]+$/
+          branches:
+            only: master
