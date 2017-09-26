@@ -43,7 +43,6 @@ jobs:
       - run:
           name: Install test dependencies
           command: |
-#            ${PYTHON_BIN} -m venv venv
             virtualenv venv -p ${PYTHON_BIN}
             . venv/bin/activate
             pip install -U pip
@@ -162,6 +161,6 @@ jobs:
 
       - run:
         name: Install from pip
-        command: |
         # Try to install the same version from PyPI
+        command: |
           pip install flask-log-request-id==`python setup.py --version`
