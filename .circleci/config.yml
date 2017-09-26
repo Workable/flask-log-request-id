@@ -163,9 +163,9 @@ workflows:
       - deploy_pypi:
           requires:
             - request_permission_for_public_pypi
-          tags:
-            only:
-                - /^v[\d\.]+$/
           filters:
+            tags:
+              only:
+                  - /^v[\d\.]+$/
             branches:
               only: master
