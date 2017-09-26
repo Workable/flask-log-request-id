@@ -16,7 +16,7 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-test-dependencies-{{ .Environment.PYTHON_VERSION }}-{{ checksum "setup.py" }}
+          - v2-test-dependencies-{{ .Environment.PYTHON_VERSION }}-{{ checksum "setup.py" }}
 
       - run:
           name: Install test dependencies
@@ -31,14 +31,14 @@ jobs:
       - save_cache:
           paths:
             - ./venv
-          key: v1-test-dependencies-{{ .Environment.PYTHON_VERSION }}-{{ checksum "setup.py" }}
+          key: v2-test-dependencies-{{ .Environment.PYTHON_VERSION }}-{{ checksum "setup.py" }}
 
       # run Flake8!
       - run:
           name: Flake8 Compliance
           command: |
             . venv/bin/activate
-            python setup.py flake8
+            ${PYTHON_BIN} setup.py flake8
 
       # run tests!
       - run:
@@ -46,7 +46,7 @@ jobs:
           command: |
             . venv/bin/activate
             pip install
-            python setup.py nosetests
+            ${PYTHON_BIN} setup.py nosetests
 
   test-3.5:
   # Clone-job to run tests test on python 3.6
