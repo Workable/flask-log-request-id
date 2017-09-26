@@ -91,7 +91,7 @@ jobs:
             - version.txt
 
 
-  deploy_test_pypi: &deploy_template
+  deploy_staging_pypi: &deploy_template
 
     docker:
       - image: circleci/python:3.6
