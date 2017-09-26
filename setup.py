@@ -46,7 +46,8 @@ information. If all these sounds unfamiliar please take a look at `python loggin
 
     # Setup logging
     handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - level=%(levelname)s - request_id=%(request_id)s - %(message)s"))
+    handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(name)s - level=%(levelname)s - request_id=%(request_id)s - %(message)s"))
     handler.addFilter(RequestIDLogFilter())  # << Add request id contextual filter
     logging.getLogger().addHandler(handler)
 
