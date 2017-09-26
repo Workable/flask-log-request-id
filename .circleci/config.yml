@@ -111,8 +111,15 @@ jobs:
       - run:
           name: Upload to PyPI
           command: |
-            echo "Should upload the following"
+            export TWINE_USERNAME="${PYPI_TEST_USERNAME}"
+            export TWINE_PASSWORD="${PYPI_TEST_PASSWORD}"
+            echo "Uploading to test.pupi.org"
             ls -R workspace
+            cat workspace/version.txt
+            ls workspace/dist/*`cat workspace/version.txt`*
+            echo ${TWINE_PASSWORD}
+            echo ${TWINE_USERNAME}
+            # twine upload --repository-url https://test.pypi.org/legacy/ workspace/dist/*`cat workspace/version.txt`*
 
   deploy_pypi:
     <<: *deploy_template
@@ -140,7 +147,7 @@ jobs:
 
 workflows:
   version: 2
-  test_and_build:
+  test_build_deploy:
     jobs:
       - test-3.6
       - test-3.5
@@ -148,12 +155,8 @@ workflows:
           requires:
             - test-3.6
             - test-3.5
-      - deploy_test_pypi:
+      - deploy_staging_pypi:
           filters:
-            tags:
-              only:
-                  - /^v[\d\.]+$/
-                  - /^test-.*/
             branches:
               only:
                   - feature/mutlitple_python_versions
@@ -163,14 +166,14 @@ workflows:
       - request_permission_for_public_pypi:
           type: approval
           requires:
-            - deploy_test_pypi
-
-      - deploy_pypi:
-          requires:
-            - request_permission_for_public_pypi
+            - build
           filters:
             tags:
               only:
                   - /^v[\d\.]+$/
             branches:
               only: master
+
+      - deploy_pypi:
+          requires:
+            - request_permission_for_public_pypi
