@@ -43,10 +43,17 @@ jobs:
 
       # run tests!
       - run:
-          name: run tests
+          name: Unit-Tests
           command: |
             . venv/bin/activate
             python setup.py test
+
+      # run Flake8!
+      - run:
+          name: Flake8 Compliance
+          command: |
+            . venv/bin/activate
+            python setup.py flake8
 
       - store_artifacts:
           path: test-reports
