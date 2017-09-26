@@ -112,7 +112,7 @@ jobs:
           name: Upload to PyPI
           command: |
             echo "Should upload the following"
-            tree workspace
+            ls -R workspace
 
   deploy_pypi:
     <<: *deploy_template
@@ -156,13 +156,15 @@ workflows:
                   - /^test-.*/
             branches:
               only:
-                  - testing
+                  - feature/mutlitple_python_versions
           requires:
             - build
+
       - request_permission_for_public_pypi:
           type: approval
           requires:
             - deploy_test_pypi
+
       - deploy_pypi:
           requires:
             - request_permission_for_public_pypi
