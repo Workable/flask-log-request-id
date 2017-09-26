@@ -154,6 +154,9 @@ workflows:
               only:
                   - /^v[\d\.]+$/
                   - /^test-.*/
+            branches:
+              only:
+                  - testing
           requires:
             - build
       - request_permission_for_public_pypi:
