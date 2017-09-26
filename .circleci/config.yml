@@ -160,7 +160,7 @@ jobs:
           name: Install from pip
           # Try to install the same version from PyPI
           command: |
-            pip install --index-url https://test.pypi.org/simple/ flask-log-request-id==`cat workspace/version.txt`
+            pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple flask-log-request-id==`cat workspace/version.txt`
             pip freeze | grep flask-log-request-id
 
 workflows:
