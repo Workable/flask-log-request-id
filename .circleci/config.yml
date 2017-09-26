@@ -11,6 +11,7 @@ workflows:
       - test-3.5
       - test-2.7
 
+
 jobs:
   test-3.6: &test-template
     docker:
@@ -25,6 +26,9 @@ jobs:
 
     working_directory: ~/repo
 
+    environment:
+      PYTHON_BIN: python3
+
     steps:
       - checkout
 
@@ -33,12 +37,12 @@ jobs:
           keys:
           - v1-test-dependencies-{{ checksum "setup.py" }}
           # fallback to using the latest cache if no exact match is found
-          - v1-test-dependencies-
+          # - v1-test-dependencies-
 
       - run:
           name: Install test dependencies
           command: |
-            python3 -m venv venv
+            ${PYTHON_BIN} -m venv venv
             . venv/bin/activate
             pip install -U pip
             pip install -U setuptools
@@ -79,3 +83,5 @@ jobs:
     <<: *test-template
     docker:
       - image: circleci/python:2.7
+    environment:
+      PYTHON_BIN: python
