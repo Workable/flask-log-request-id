@@ -91,7 +91,7 @@ jobs:
             - version.txt
 
 
-  deploy_staging_pypi: &deploy_template
+  deploy_test_pypi: &deploy_template
 
     docker:
       - image: circleci/python:3.6
@@ -113,32 +113,55 @@ jobs:
           command: |
             export TWINE_USERNAME="${PYPI_TEST_USERNAME}"
             export TWINE_PASSWORD="${PYPI_TEST_PASSWORD}"
-            echo "Uploading to test.pupi.org"
+            echo "Uploading to test.pypi.org"
             ./venv/bin/twine upload --repository-url https://test.pypi.org/legacy/ workspace/dist/*`cat workspace/version.txt`*
 
-  deploy_pypi:
-    <<: *deploy_template
-
-  test_pypi:
+  deploy_pypi: &deploy_template
 
     docker:
       - image: circleci/python:3.6
 
     steps:
-      - checkout
+
+      - attach_workspace:
+          at: workspace
 
       - run:
           name: Create VEnv with tools
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install -U pip setuptools
+            pip install -U pip setuptools twine
+
+      - run:
+          name: Upload to PyPI
+          command: |
+            export TWINE_USERNAME="${PYPI_USERNAME}"
+            export TWINE_PASSWORD="${PYPI_TEST_PASSWORD}"
+            echo "Uploading to pypi.org"
+            ./venv/bin/twine upload workspace/dist/*`cat workspace/version.txt`*
+
+  install_test_pypi:
+
+    docker:
+      - image: circleci/python:3.6
+
+    steps:
+      - attach_workspace:
+          at: workspace
+
+      - run:
+          name: Create virtual-environment
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
 
       - run:
           name: Install from pip
           # Try to install the same version from PyPI
           command: |
-            pip install flask-log-request-id==`python setup.py --version`
+            pip install --index-url https://test.pypi.org/simple/ flask-log-request-id==`cat workspace/version.txt`
+            pip freeze | grep flask-log-request-id
 
 workflows:
   version: 2
@@ -150,13 +173,16 @@ workflows:
           requires:
             - test-3.6
             - test-3.5
-      - deploy_staging_pypi:
+      - deploy_test_pypi:
           filters:
             branches:
               only:
                   - feature/mutlitple_python_versions
           requires:
             - build
+      - install_test_pypi:
+          requires:
+            - deploy_test_pypi
 
       - request_permission_for_public_pypi:
           type: approval
