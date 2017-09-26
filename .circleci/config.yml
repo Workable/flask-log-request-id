@@ -58,16 +58,6 @@ jobs:
       PYTHON_BIN: python3
       PYTHON_VERSION: 3.5
 
-#  test-2.7:
-#  # Clone-job to run tests test on python 3.6
-#    <<: *test-template
-#    docker:
-#      - image: circleci/python:2.7
-#
-#    environment:
-#      PYTHON_BIN: python2
-#      PYTHON_VERSION: 2.7
-
   build:
     # Build and store artifacts
 
@@ -96,8 +86,6 @@ jobs:
 
   deploy_pypi:
     type: approval
-    requires:
-      - build
 
     docker:
       - image: circleci/python:3.6
@@ -121,8 +109,6 @@ jobs:
         destination: dist
 
   test_pypi:
-    requires:
-      - deploy_pypi
 
     docker:
       - image: circleci/python:3.6
@@ -149,3 +135,8 @@ workflows:
     jobs:
       - test-3.6
       - test-3.5
+  deploy:
+    jobs:
+      - build:
+          requires:
+            - test
