@@ -114,12 +114,7 @@ jobs:
             export TWINE_USERNAME="${PYPI_TEST_USERNAME}"
             export TWINE_PASSWORD="${PYPI_TEST_PASSWORD}"
             echo "Uploading to test.pupi.org"
-            ls -R workspace
-            cat workspace/version.txt
-            ls workspace/dist/*`cat workspace/version.txt`*
-            echo ${TWINE_PASSWORD}
-            echo ${TWINE_USERNAME}
-            # twine upload --repository-url https://test.pypi.org/legacy/ workspace/dist/*`cat workspace/version.txt`*
+            twine upload --repository-url https://test.pypi.org/legacy/ workspace/dist/*`cat workspace/version.txt`*
 
   deploy_pypi:
     <<: *deploy_template
