@@ -15,8 +15,9 @@ class RequestIDAwareTask(Task):
     """
 
     def apply_async(self, *args, **kwargs):
-        # Override to inject request id
-        kwargs.setdefault('headers', {})
+        # Set default value for 'headers' argument
+        if 'headers' not in kwargs or kwargs['headers'] is None:
+            kwargs['headers'] = {}
         request_id = current_request_id()
         logger.debug("Forwarding request_id '{}' to the task consumer.".format(request_id))
         kwargs['headers'][_CELERY_X_HEADER] = request_id

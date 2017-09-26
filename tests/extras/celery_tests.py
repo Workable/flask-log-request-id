@@ -42,6 +42,27 @@ class CeleryIntegrationTestCase(unittest.TestCase):
                     'foo': 'bar'
             })
 
+    @mock.patch('flask_log_request_id.extras.celery.current_request_id')
+    def test_issue21_called_with_headers_None(self, mocked_current_request_id):
+
+        patcher = mock.patch.object(RequestIDAwareTask, '__bases__', (MockedTask,))
+
+        with patcher:
+            patcher.is_local = True
+
+            mocked_current_request_id.return_value = 15
+            task = RequestIDAwareTask()
+            task.apply_async('test', foo='bar', headers=None)
+            self.assertEqual(
+                task.apply_async_called['args'],
+                ('test', ))
+
+            self.assertDictEqual(
+                task.apply_async_called['kwargs'], {
+                    'headers': {'x_request_id': 15},
+                    'foo': 'bar'
+            })
+
     @mock.patch('flask_log_request_id.extras.celery.current_task')
     def test_ctx_fetcher_outside_context(self, mocked_current_task):
 
