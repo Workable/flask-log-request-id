@@ -16,7 +16,7 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v2-test-dependencies-{{ .Environment.PYTHON_VERSION }}-{{ checksum "setup.py" }}
+          - v2-test-dependencies-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}
 
       - run:
           name: Install test dependencies
@@ -31,7 +31,7 @@ jobs:
       - save_cache:
           paths:
             - ./venv
-          key: v2-test-dependencies-{{ .Environment.PYTHON_VERSION }}-{{ checksum "setup.py" }}
+          key: v2-test-dependencies-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}
 
       # run Flake8!
       - run:

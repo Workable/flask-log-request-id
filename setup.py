@@ -87,7 +87,6 @@ import re
 import ast
 from setuptools import setup
 
-
 _version_re = re.compile(r'__version__\s+=\s+(.*)')
 
 with open('flask_log_request_id/__init__.py', 'rb') as f:
@@ -95,10 +94,10 @@ with open('flask_log_request_id/__init__.py', 'rb') as f:
         f.read().decode('utf-8')).group(1)))
 
 test_requirements = [
-        'nose',
-        'mock==2.0.0',
-        'coverage~=4.3.4',
-        'celery~=4.1.0'
+    'nose',
+    'mock==2.0.0',
+    'coverage~=4.3.4',
+    'celery~=4.1.0'
 ]
 
 setup(
@@ -129,7 +128,7 @@ setup(
         "nose"
     ],
     extras_require={
-        'test':  test_requirements,
+        'test': test_requirements,
         'celery': ["celery~=4.1.0"],
     },
     test_suite='nose.collector',
