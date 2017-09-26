@@ -64,6 +64,7 @@ jobs:
     docker:
       - image: circleci/python:3.6
 
+
     steps:
       - checkout
       - run:
@@ -77,34 +78,44 @@ jobs:
           name: Build Source and Wheel distribution files
           command: |
             python setup.py sdist bdist_wheel
+            python setup.py --version > version.txt
 
       - store_artifacts:
           path: dist
           destination: dist
 
-  deploy_pypi:
-    type: approval
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist
+            - version.txt
+
+
+  deploy_test_pypi: &deploy_template
 
     docker:
       - image: circleci/python:3.6
 
     steps:
 
-      - run:
-        name: Upload to PyPI
-        command: |
-          python3 -m venv venv
-          . venv/bin/activate
-          pip install -U pip setuptools
+      - attach_workspace:
+          at: workspace
 
       - run:
-        name: Download
-        command: |
-          python setup.py sdist bdist_wheel
+          name: Create VEnv with tools
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -U pip setuptools twine
 
-      - store_artifacts:
-        path: dist
-        destination: dist
+      - run:
+          name: Upload to PyPI
+          command: |
+            echo "Should upload the following"
+            tree workspace
+
+  deploy_pypi:
+    <<: *deploy_template
 
   test_pypi:
 
@@ -115,17 +126,17 @@ jobs:
       - checkout
 
       - run:
-        name: Create virtual environment
-        command: |
-          python3 -m venv venv
-          . venv/bin/activate
-          pip install -U pip setuptools
+          name: Create VEnv with tools
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -U pip setuptools
 
       - run:
-        name: Install from pip
-        # Try to install the same version from PyPI
-        command: |
-          pip install flask-log-request-id==`python setup.py --version`
+          name: Install from pip
+          # Try to install the same version from PyPI
+          command: |
+            pip install flask-log-request-id==`python setup.py --version`
 
 workflows:
   version: 2
@@ -137,3 +148,11 @@ workflows:
           requires:
             - test-3.6
             - test-3.5
+      - deploy_test_pypi:
+          type: approval
+          requires:
+            - build
+      - deploy_pypi:
+          type: approval
+          requires:
+            - deploy_test_pypi
