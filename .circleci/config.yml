@@ -101,4 +101,3 @@ workflows:
           requires:
             - test-3.6
             - test-3.5
->>>>>>> [circle] Add py3.5 and py3.6 test jobs and build workflow
