@@ -9,25 +9,26 @@ workflows:
     jobs:
       - test-3.6
       - test-3.5
-      - test-2.7
 
+  deploy:
+    requires:
+      - test
+    jobs:
+      - build
+      - deploy_pypi
 
 jobs:
+
   test-3.6: &test-template
+  # Job to run tests test on python 3.6
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
       - image: circleci/python:3.6
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
-
-    working_directory: ~/repo
-
     environment:
       PYTHON_BIN: python3
+      PYTHON_VERSION: 3.6
 
     steps:
       - checkout
@@ -35,14 +36,15 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-test-dependencies-{{ checksum "setup.py" }}
+          - v1-test-dependencies-{{ .Environment.PYTHON_VERSION }}-{{ checksum "setup.py" }}
           # fallback to using the latest cache if no exact match is found
           # - v1-test-dependencies-
 
       - run:
           name: Install test dependencies
           command: |
-            ${PYTHON_BIN} -m venv venv
+#            ${PYTHON_BIN} -m venv venv
+            virtualenv venv -p ${PYTHON_BIN}
             . venv/bin/activate
             pip install -U pip
             pip install -U setuptools
@@ -52,7 +54,7 @@ jobs:
       - save_cache:
           paths:
             - ./venv
-          key: v1-test-dependencies-{{ checksum "setup.py" }}
+          key: v1-test-dependencies-{{ .Environment.PYTHON_VERSION }}-{{ checksum "setup.py" }}
 
       # run Flake8!
       - run:
@@ -69,19 +71,97 @@ jobs:
             pip install
             python setup.py nosetests
 
-#      # Build
-#      - store_artifacts:
-#          path: test-reports
-#          destination: test-reports
-
   test-3.5:
+  # Clone-job to run tests test on python 3.6
     <<: *test-template
     docker:
       - image: circleci/python:3.5
 
-  test-2.7:
-    <<: *test-template
-    docker:
-      - image: circleci/python:2.7
     environment:
-      PYTHON_BIN: python
+      PYTHON_BIN: python3
+      PYTHON_VERSION: 3.5
+
+#  test-2.7:
+#  # Clone-job to run tests test on python 3.6
+#    <<: *test-template
+#    docker:
+#      - image: circleci/python:2.7
+#
+#    environment:
+#      PYTHON_BIN: python2
+#      PYTHON_VERSION: 2.7
+
+  build:
+    # Build and store artifacts
+
+    docker:
+      - image: circleci/python:3.6
+
+    steps:
+
+      - checkout
+
+      - run:
+        name: Create environment
+        command: |
+          python3 -m venv venv
+          . venv/bin/activate
+          pip install -U pip setuptools
+
+      - run:
+        name: Build Source and Wheel distribution files
+        command: |
+          python setup.py sdist bdist_wheel
+
+      - store_artifacts:
+        path: dist
+        destination: dist
+
+  deploy_pypi:
+    type: approval
+    requires:
+      - build
+
+    docker:
+      - image: circleci/python:3.6
+
+    steps:
+
+      - run:
+        name: Upload to PyPI
+        command: |
+          python3 -m venv venv
+          . venv/bin/activate
+          pip install -U pip setuptools
+
+      - run:
+        name: Download
+        command: |
+          python setup.py sdist bdist_wheel
+
+      - store_artifacts:
+        path: dist
+        destination: dist
+
+  test_pypi:
+    requires:
+      - deploy_pypi
+
+    docker:
+      - image: circleci/python:3.6
+
+    steps:
+      - checkout
+
+      - run:
+        name: Create virtual environment
+        command: |
+          python3 -m venv venv
+          . venv/bin/activate
+          pip install -U pip setuptools
+
+      - run:
+        name: Install from pip
+        command: |
+        # Try to install the same version from PyPI
+          pip install flask-log-request-id==`python setup.py --version`
