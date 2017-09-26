@@ -1,10 +1,4 @@
 version: 2
-workflows:
-  test:
-    jobs:
-      - test-3.6
-      - test-3.5
-      - test-2.7
 
 jobs:
   test-3.6: &test-template
@@ -64,15 +58,15 @@ jobs:
       PYTHON_BIN: python3
       PYTHON_VERSION: 3.5
 
-#  test-2.7:
-#  # Clone-job to run tests test on python 3.6
-#    <<: *test-template
-#    docker:
-#      - image: circleci/python:2.7
-#
-#    environment:
-#      PYTHON_BIN: python2
-#      PYTHON_VERSION: 2.7
+  test-2.7:
+  # Clone-job to run tests test on python 3.6
+    <<: *test-template
+    docker:
+      - image: circleci/python:2.7
+
+    environment:
+      PYTHON_BIN: python2
+      PYTHON_VERSION: 2.7
 
   build:
     # Build and store artifacts
@@ -148,3 +142,11 @@ jobs:
         # Try to install the same version from PyPI
         command: |
           pip install flask-log-request-id==`python setup.py --version`
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test-3.6
+      - test-3.5
+      - test-2.7
