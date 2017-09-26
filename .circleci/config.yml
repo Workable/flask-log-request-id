@@ -1,29 +1,15 @@
-# Python CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-python/ for more details
-#
 version: 2
 workflows:
-  version: 2
   test:
     jobs:
       - test-3.6
       - test-3.5
-
-  deploy:
-    requires:
-      - test
-    jobs:
-      - build
-      - deploy_pypi
+      - test-2.7
 
 jobs:
-
   test-3.6: &test-template
   # Job to run tests test on python 3.6
     docker:
-      # specify the version you desire here
-      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
       - image: circleci/python:3.6
 
     environment:
@@ -37,8 +23,6 @@ jobs:
       - restore_cache:
           keys:
           - v1-test-dependencies-{{ .Environment.PYTHON_VERSION }}-{{ checksum "setup.py" }}
-          # fallback to using the latest cache if no exact match is found
-          # - v1-test-dependencies-
 
       - run:
           name: Install test dependencies
