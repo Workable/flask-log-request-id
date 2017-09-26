@@ -165,7 +165,7 @@ jobs:
           command: |
             . venv/bin/activate
             pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple flask-log-request-id==`cat workspace/version.txt`
-            pip freeze | grep flask-log-request-id
+            pip freeze | grep -i flask-log-request-id
 
 workflows:
   version: 2
