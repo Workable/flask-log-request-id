@@ -77,6 +77,7 @@ jobs:
       - run:
           name: Build Source and Wheel distribution files
           command: |
+            . venv/bin/activate
             python setup.py sdist bdist_wheel
             python setup.py --version > version.txt
 
@@ -111,6 +112,7 @@ jobs:
       - run:
           name: Upload to PyPI
           command: |
+            . venv/bin/activate
             export TWINE_USERNAME="${PYPI_TEST_USERNAME}"
             export TWINE_PASSWORD="${PYPI_TEST_PASSWORD}"
             echo "Uploading to test.pypi.org"
@@ -136,10 +138,11 @@ jobs:
       - run:
           name: Upload to PyPI
           command: |
+            . venv/bin/activate
             export TWINE_USERNAME="${PYPI_USERNAME}"
             export TWINE_PASSWORD="${PYPI_TEST_PASSWORD}"
             echo "Uploading to pypi.org"
-            ./venv/bin/twine upload workspace/dist/*`cat workspace/version.txt`*
+            twine upload workspace/dist/*`cat workspace/version.txt`*
 
   install_test_pypi:
 
@@ -160,6 +163,7 @@ jobs:
           name: Install from pip
           # Try to install the same version from PyPI
           command: |
+            . venv/bin/activate
             pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple flask-log-request-id==`cat workspace/version.txt`
             pip freeze | grep flask-log-request-id
 
