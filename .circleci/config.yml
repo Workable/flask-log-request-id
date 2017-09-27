@@ -117,8 +117,8 @@ jobs:
             echo "Uploading to test.pypi.org"
             ./venv/bin/twine upload --repository-url https://test.pypi.org/legacy/ workspace/dist/*`cat workspace/version.txt`*
 
-  install_test_pypi:
-    # Try to install from test-pip
+  install_from_test_pypi:
+    # Try to install from test-pypi
     docker:
       - image: circleci/python:3.6
 
@@ -140,6 +140,29 @@ jobs:
             pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple flask-log-request-id==`cat workspace/version.txt`
             pip freeze | grep -i flask-log-request-id
 
+  install_from_pypi:
+    # Try to install from public pypi
+    docker:
+      - image: circleci/python:3.6
+
+    steps:
+      - attach_workspace:
+          at: workspace
+
+      - run:
+          name: Create virtual-environment
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+
+      - run:
+          name: Install from pip
+          # Try to install the same version from PyPI
+          command: |
+            . venv/bin/activate
+            pip install flask-log-request-id==`cat workspace/version.txt`
+            pip freeze | grep -i flask-log-request-id
+
 workflows:
   version: 2
   test_build_deploy:
@@ -158,10 +181,10 @@ workflows:
                   - staging
           requires:
             - build
-      - install_test_pypi:
+
+      - install_from_test_pypi:
           requires:
             - deploy_test_pypi
-
 
       - request_permission_for_public_pypi:
           type: approval
@@ -177,3 +200,7 @@ workflows:
       - deploy_pypi:
           requires:
             - request_permission_for_public_pypi
+
+      - install_from_pypi:
+          requires:
+            - deploy_pypi
