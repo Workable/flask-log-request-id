@@ -64,7 +64,6 @@ jobs:
     docker:
       - image: circleci/python:3.6
 
-
     steps:
       - checkout
       - run:
@@ -91,6 +90,56 @@ jobs:
             - dist
             - version.txt
 
+  deploy_test_pypi: &deploy_template
+    # Job to deploy on test environment
+    # Requires dist files under workspace/dist
+    docker:
+      - image: circleci/python:3.6
+
+    steps:
+
+      - attach_workspace:
+          at: workspace
+
+      - run:
+          name: Create VEnv with tools
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -U pip setuptools twine
+
+      - run:
+          name: Upload to PyPI
+          command: |
+            . venv/bin/activate
+            export TWINE_USERNAME="${PYPI_TEST_USERNAME}"
+            export TWINE_PASSWORD="${PYPI_TEST_PASSWORD}"
+            echo "Uploading to test.pypi.org"
+            ./venv/bin/twine upload --repository-url https://test.pypi.org/legacy/ workspace/dist/*`cat workspace/version.txt`*
+
+  install_test_pypi:
+    # Try to install from test-pip
+    docker:
+      - image: circleci/python:3.6
+
+    steps:
+      - attach_workspace:
+          at: workspace
+
+      - run:
+          name: Create virtual-environment
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+
+      - run:
+          name: Install from pip
+          # Try to install the same version from PyPI
+          command: |
+            . venv/bin/activate
+            pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple flask-log-request-id==`cat workspace/version.txt`
+            pip freeze | grep -i flask-log-request-id
+
 workflows:
   version: 2
   test_build_deploy:
@@ -101,3 +150,30 @@ workflows:
           requires:
             - test-3.6
             - test-3.5
+
+      - deploy_test_pypi:
+          filters:
+            branches:
+              only:
+                  - staging
+          requires:
+            - build
+      - install_test_pypi:
+          requires:
+            - deploy_test_pypi
+
+
+      - request_permission_for_public_pypi:
+          type: approval
+          requires:
+            - build
+          filters:
+            tags:
+              only:
+                  - /^v[\d\.]+$/
+            branches:
+              only: master
+
+      - deploy_pypi:
+          requires:
+            - request_permission_for_public_pypi
