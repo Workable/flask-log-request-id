@@ -117,6 +117,34 @@ jobs:
             echo "Uploading to test.pypi.org"
             ./venv/bin/twine upload --repository-url https://test.pypi.org/legacy/ workspace/dist/*`cat workspace/version.txt`*
 
+  deploy_pypi:
+    # Job to deploy on public PyPI
+    # Requires dist files under workspace/dist
+    docker:
+      - image: circleci/python:3.6
+
+    steps:
+
+      - attach_workspace:
+          at: workspace
+
+      - run:
+          name: Create VEnv with tools
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -U pip setuptools twine
+
+      - run:
+          name: Upload to PyPI
+          command: |
+            . venv/bin/activate
+            export TWINE_USERNAME="${PYPI_USERNAME}"
+            export TWINE_PASSWORD="${PYPI_PASSWORD}"
+            echo "Uploading to pypi.org"
+            ./venv/bin/twine upload workspace/dist/*`cat workspace/version.txt`*
+
+
   install_from_test_pypi:
     # Try to install from test-pypi
     docker:
