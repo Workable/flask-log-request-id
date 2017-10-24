@@ -24,6 +24,9 @@ class RequestIDAwareTask(Task):
 
         return super(RequestIDAwareTask, self).apply_async(*args, **kwargs)
 
+def add_request_id_header(headers=None, **kwargs):
+    if _CELERY_X_HEADER not in headers:
+        headers[_CELERY_X_HEADER] = current_request_id()
 
 def ctx_celery_task_get_request_id():
     """
