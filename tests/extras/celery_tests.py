@@ -1,10 +1,11 @@
-from celery import Celery
-import unittest
 import mock
+import unittest
 
-
-from flask_log_request_id.extras.celery import (
-    RequestIDAwareTask, ctx_celery_task_get_request_id, ExecutedOutsideContext)
+from celery import Celery
+from flask_log_request_id.extras.celery import (ExecutedOutsideContext,
+                                                RequestIDAwareTask,
+                                                add_request_id_header,
+                                                ctx_celery_task_get_request_id)
 
 
 class MockedTask(object):
@@ -62,6 +63,17 @@ class CeleryIntegrationTestCase(unittest.TestCase):
                     'headers': {'x_request_id': 15},
                     'foo': 'bar'
             })
+
+    @mock.patch('flask_log_request_id.extras.celery.current_request_id')
+    def test_before_task_publish_hooks_adds_header(self, mocked_current_request_id):
+        mocked_current_request_id.return_value = 15
+
+        headers = {}
+        add_request_id_header(headers={})
+        print(headers)
+        self.assertDictEqual(headers, {
+            'x_request_id': 15
+        })
 
     @mock.patch('flask_log_request_id.extras.celery.current_task')
     def test_ctx_fetcher_outside_context(self, mocked_current_task):
