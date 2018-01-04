@@ -1,8 +1,8 @@
 from celery import Celery, signals
-from flask_log_request_id.extras.celery import add_request_id_header, RequestIDAwareTask
+from flask_log_request_id.extras.celery import enable_request_id_propagation
 
-# Either sublcass all tasks from RequestIDAwareTask
-celery = Celery(task_cls=RequestIDAwareTask)
+celery = Celery()
 
-# Or alternatively register the provided signal handler
-signals.before_task_publish.connect(add_request_id_header)
+# You need to enable propagation on celery application
+enable_request_id_propagation(celery)
+
