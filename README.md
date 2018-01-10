@@ -90,12 +90,14 @@ In order to use this feature you need to enable the celery plugin and configure 
 use `current_request_id()` from inside your worker
 
 ```python
-from flask_log_request_id.extras.celery import RequestIDAwareTask
+from flask_log_request_id.extras.celery import enable_request_id_propagation
 from flask_log_request_id import current_request_id
 from celery.app import Celery
 import logging
 
-celery = Celery(task_cls=RequestIDAwareTask)
+celery = Celery()
+enable_request_id_propagation(celery)  # << This step here is critical to propagate request-id to workers
+
 app = Flask()
 
 @celery.task()
