@@ -95,9 +95,10 @@ with open('flask_log_request_id/__init__.py', 'rb') as f:
 
 test_requirements = [
     'nose',
+    'flake8',
     'mock==2.0.0',
-    'coverage~=4.3.4',
-    'celery~=4.1.0'
+    'coverage~=4.5.4',
+    'celery~=4.3.0'
 ]
 
 setup(
@@ -128,8 +129,7 @@ setup(
         "nose"
     ],
     extras_require={
-        'test': test_requirements,
-        'celery': ["celery~=4.1.0"],
+        'test': test_requirements
     },
     test_suite='nose.collector',
     classifiers=[
