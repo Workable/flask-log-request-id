@@ -7,9 +7,9 @@ Flask-Log-Request-Id
 **Flask-Log-Request-Id** is an extension for `Flask`_ that can parse and handle
 the request-id sent by request processors like `Amazon ELB`_, `Heroku Request-ID`_
 or any multi-tier infrastructure as the one used at microservices. A common
-usage scenario is to inject the request\_id in the logging system so that all
+usage scenario is to inject the request\\_id in the logging system so that all
 log records, even those emitted by third party libraries, have attached the
-request\_id that initiated their call. This can greatly improve tracing and debugging of problems.
+request\\_id that initiated their call. This can greatly improve tracing and debugging of problems.
 
 
 Features
