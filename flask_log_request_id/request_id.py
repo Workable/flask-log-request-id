@@ -81,7 +81,7 @@ class RequestID(object):
                     setattr(g, g_object_attr, self._request_id_generator())
 
         # Register after request
-        if self.app.config['LOG_REQUEST_ID_LOG_ALL_REQUESTS']:
+        if app.config['LOG_REQUEST_ID_LOG_ALL_REQUESTS']:
             app.after_request(self._log_http_event)
 
     @staticmethod
