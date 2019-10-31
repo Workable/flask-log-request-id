@@ -7,9 +7,9 @@ Flask-Log-Request-Id
 **Flask-Log-Request-Id** is an extension for `Flask`_ that can parse and handle
 the request-id sent by request processors like `Amazon ELB`_, `Heroku Request-ID`_
 or any multi-tier infrastructure as the one used at microservices. A common
-usage scenario is to inject the request\_id in the logging system so that all
+usage scenario is to inject the request\\_id in the logging system so that all
 log records, even those emitted by third party libraries, have attached the
-request\_id that initiated their call. This can greatly improve tracing and debugging of problems.
+request\\_id that initiated their call. This can greatly improve tracing and debugging of problems.
 
 
 Features
@@ -95,9 +95,10 @@ with open('flask_log_request_id/__init__.py', 'rb') as f:
 
 test_requirements = [
     'nose',
+    'flake8',
     'mock==2.0.0',
-    'coverage~=4.3.4',
-    'celery~=4.1.0'
+    'coverage~=4.5.4',
+    'celery~=4.3.0'
 ]
 
 setup(
@@ -128,8 +129,7 @@ setup(
         "nose"
     ],
     extras_require={
-        'test': test_requirements,
-        'celery': ["celery~=4.1.0"],
+        'test': test_requirements
     },
     test_suite='nose.collector',
     classifiers=[
