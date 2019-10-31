@@ -45,7 +45,6 @@ jobs:
           name: Unit-Tests
           command: |
             . venv/bin/activate
-            pip install
             ${PYTHON_BIN} setup.py nosetests
 
   test-3.5:

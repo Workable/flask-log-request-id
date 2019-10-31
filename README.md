@@ -17,7 +17,7 @@ The easiest way to install it is using ``pip`` from PyPI
 ```bash
 pip install flask-log-request-id
 ```
-    
+
 ## Usage
 
 Flask-Log-Request-Id provides the `current_request_id()` function which can be used at any time to get the request
@@ -42,7 +42,7 @@ def hello():
 ### Example 2: Parse request id and send it to to logging
 
 In the following example, we will use the `RequestIDLogFilter` to inject the request id on all log events, and
-a custom formatter to print this information. If all these sounds unfamiliar please take a look at [python's logging 
+a custom formatter to print this information. If all these sounds unfamiliar please take a look at [python's logging
 system](https://docs.python.org/3/library/logging.html)
 
 
@@ -103,10 +103,10 @@ app = Flask()
 @celery.task()
 def generic_add(a, b):
     """Simple function to add two numbers that is not aware of the request id"""
-    
+
     logging.debug('Called generic_add({}, {}) from request_id: {}'.format(a, b, current_request_id()))
     return a + b
-    
+
 @app.route('/')
 def index():
     a, b = randint(1, 15), randint(1, 15)
@@ -114,8 +114,21 @@ def index():
     return str(generic_add.delay(a, b))  # Calling the task here, will forward the request id to the workers
 ```
 
-You can follow the same logging strategy for both web application and workers using the `RequestIDLogFilter` as shown in 
+You can follow the same logging strategy for both web application and workers using the `RequestIDLogFilter` as shown in
 example 1 and 2.
+
+### Example 4: If you want to return request id in response
+
+This will be useful while integrating with frontend where in you can get the request id from the response (be it 400 or 500) and then trace the request in logs.
+
+```python
+from flask_log_request_id import current_request_id
+
+@app.after_request
+def append_request_id(response):
+    response.headers.add('X-REQUEST-ID', current_request_id())
+    return response
+```
 
 ## Configuration
 
