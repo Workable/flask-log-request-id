@@ -12,6 +12,14 @@ class RequestIDTestCase(unittest.TestCase):
         self.app.route('/')(lambda: 'hello world')
         self.app.testing = True
 
+    def test_lazy_initialization(self):
+        # Bug #38: https://github.com/Workable/flask-log-request-id/issues/38
+        request_id = RequestID()
+        request_id.init_app(self.app)
+        with self.app.test_request_context(headers={'X-Amzn-Trace-Id': 'Self=1-67891234-def;Root=1-67891233-abc'}):
+            self.app.preprocess_request()
+            self.assertEqual('1-67891234-def', current_request_id())
+
     def test_default_request_id_parser_with_amazon(self):
         RequestID(self.app)
         with self.app.test_request_context(headers={'X-Amzn-Trace-Id': 'Self=1-67891234-def;Root=1-67891233-abc'}):
