@@ -1,14 +1,13 @@
 version: 2
 
 jobs:
-  test-3.6: &test-template
-  # Job to run tests test on python 3.6
+  test:
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.11.3
 
     environment:
       PYTHON_BIN: python3
-      PYTHON_VERSION: 3.6
+      PYTHON_VERSION: 3.11
 
     steps:
       - checkout
@@ -47,187 +46,9 @@ jobs:
             . venv/bin/activate
             ${PYTHON_BIN} setup.py nosetests
 
-  test-3.5:
-  # Clone-job to run tests test on python 3.6
-    <<: *test-template
-    docker:
-      - image: circleci/python:3.5
-
-    environment:
-      PYTHON_BIN: python3
-      PYTHON_VERSION: 3.5
-
-  build:
-    # Build and store artifacts
-
-    docker:
-      - image: circleci/python:3.6
-
-    steps:
-      - checkout
-      - run:
-          name: Create environment
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install -U pip setuptools wheel
-
-      - run:
-          name: Build Source and Wheel distribution files
-          command: |
-            . venv/bin/activate
-            python setup.py sdist bdist_wheel
-            python setup.py --version > version.txt
-
-      - store_artifacts:
-          path: dist
-          destination: dist
-
-      - persist_to_workspace:
-          root: .
-          paths:
-            - dist
-            - version.txt
-
-  deploy_test_pypi: &deploy_template
-    # Job to deploy on test environment
-    # Requires dist files under workspace/dist
-    docker:
-      - image: circleci/python:3.6
-
-    steps:
-
-      - attach_workspace:
-          at: workspace
-
-      - run:
-          name: Create VEnv with tools
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install -U pip setuptools twine
-
-      - run:
-          name: Upload to PyPI
-          command: |
-            . venv/bin/activate
-            export TWINE_USERNAME="${PYPI_TEST_USERNAME}"
-            export TWINE_PASSWORD="${PYPI_TEST_PASSWORD}"
-            echo "Uploading to test.pypi.org"
-            ./venv/bin/twine upload --repository-url https://test.pypi.org/legacy/ workspace/dist/*`cat workspace/version.txt`*
-
-  deploy_pypi:
-    # Job to deploy on public PyPI
-    # Requires dist files under workspace/dist
-    docker:
-      - image: circleci/python:3.6
-
-    steps:
-
-      - attach_workspace:
-          at: workspace
-
-      - run:
-          name: Create VEnv with tools
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install -U pip setuptools twine
-
-      - run:
-          name: Upload to PyPI
-          command: |
-            . venv/bin/activate
-            export TWINE_USERNAME="${PYPI_USERNAME}"
-            export TWINE_PASSWORD="${PYPI_PASSWORD}"
-            echo "Uploading to pypi.org"
-            ./venv/bin/twine upload workspace/dist/*`cat workspace/version.txt`*
-
-
-  install_from_test_pypi:
-    # Try to install from test-pypi
-    docker:
-      - image: circleci/python:3.6
-
-    steps:
-      - attach_workspace:
-          at: workspace
-
-      - run:
-          name: Create virtual-environment
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-
-      - run:
-          name: Install from pip
-          # Try to install the same version from PyPI
-          command: |
-            . venv/bin/activate
-            pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple flask-log-request-id==`cat workspace/version.txt`
-            pip freeze | grep -i flask-log-request-id
-
-  install_from_pypi:
-    # Try to install from public pypi
-    docker:
-      - image: circleci/python:3.6
-
-    steps:
-      - attach_workspace:
-          at: workspace
-
-      - run:
-          name: Create virtual-environment
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-
-      - run:
-          name: Install from pip
-          # Try to install the same version from PyPI
-          command: |
-            . venv/bin/activate
-            pip install flask-log-request-id==`cat workspace/version.txt`
-            pip freeze | grep -i flask-log-request-id
 
 workflows:
   version: 2
   test_build_deploy:
     jobs:
-      - test-3.6
-      - test-3.5
-      - build:
-          requires:
-            - test-3.6
-            - test-3.5
-
-      - deploy_test_pypi:
-          filters:
-            branches:
-              only:
-                  - staging
-          requires:
-            - build
-
-      - install_from_test_pypi:
-          requires:
-            - deploy_test_pypi
-
-      - request_permission_for_public_pypi:
-          type: approval
-          requires:
-            - build
-          filters:
-            tags:
-              only:
-                  - /^v[\d\.]+$/
-            branches:
-              only: master
-
-      - deploy_pypi:
-          requires:
-            - request_permission_for_public_pypi
-
-      - install_from_pypi:
-          requires:
-            - deploy_pypi
+      - test
