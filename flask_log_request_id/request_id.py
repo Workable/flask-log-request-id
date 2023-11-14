@@ -1,7 +1,7 @@
 import uuid
 import logging as _logging
 
-from flask import request, g, current_app
+from flask import request, g, current_app, has_app_context
 
 from .parser import auto_parser
 from .ctx_fetcher import MultiContextRequestIdFetcher, ExecutedOutsideContext
@@ -15,9 +15,8 @@ def flask_ctx_get_request_id():
     Get request id from flask's G object
     :return: The id or None if not found.
     """
-    from flask import g
 
-    if g.get("app_ctx") is None:
+    if not has_app_context() or g.get("app_ctx") is None:
         raise ExecutedOutsideContext()
 
     g_object_attr = stack.top.app.config['LOG_REQUEST_ID_G_OBJECT_ATTRIBUTE']
