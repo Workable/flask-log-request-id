@@ -1,6 +1,7 @@
 import uuid
 import logging as _logging
 
+import flask
 from flask import request, g, current_app
 
 from .parser import auto_parser
