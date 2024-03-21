@@ -18,7 +18,7 @@ def flask_ctx_get_request_id():
         raise ExecutedOutsideContext()
 
     ctx = None
-    if hasattr(flask, 'globals') and hasattr(flask.globals, 'app_ctx'): 
+    if hasattr(flask, 'globals') and hasattr(flask.globals, 'app_ctx'):
         ctx = flask.globals.app_ctx._get_current_object()
     elif hasattr(flask, '_app_ctx_stack'):
         ctx = flask._app_ctx_stack.top
